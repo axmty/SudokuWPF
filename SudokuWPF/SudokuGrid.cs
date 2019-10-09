@@ -6,6 +6,18 @@ namespace SudokuWPF
     {
         private readonly int[,] _grid = new int[9, 9];
 
+        public int this[int i, int j]
+        {
+            get
+            {
+                return _grid[i, j];
+            }
+            set
+            {
+                _grid[i, j] = value;
+            }
+        }
+
         public override bool Equals(object obj)
         {
             if (obj == null)
