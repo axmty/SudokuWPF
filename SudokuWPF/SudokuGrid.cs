@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -13,30 +14,7 @@ namespace SudokuWPF
             var resultGrid = new SudokuGrid();
             var random = new Random();
 
-            bool recursiveFill()
-            {
-                var index = Array.IndexOf(resultGrid._grid, 0);
-                var line = index / 9;
-                var column = index % 9;
-                var distinctNumbers = Enumerable.Range(1, 9).OrderBy(x => random.Next());
-                var validValues = distinctNumbers.Where(value => resultGrid.CanInsertValue(value, line, column));
-
-                foreach (var value in validValues)
-                {
-                    resultGrid._grid[index] = value;
-
-                    if (resultGrid.IsFull() || recursiveFill())
-                    {
-                        return true;
-                    }
-                }
-
-                resultGrid._grid[index] = 0;
-
-                return false;
-            }
-
-            recursiveFill();
+            resultGrid.RecursiveFill(() => Enumerable.Range(1, 9).OrderBy(x => random.Next()));
 
             return resultGrid;
         }
@@ -103,56 +81,43 @@ namespace SudokuWPF
             return builder.ToString();
         }
 
-        //private bool CanSolve()
-        //{
-        //    var copy = new SudokuGrid();
+        private bool RecursiveFill(Func<IEnumerable<int>> distinctValuesGenerator)
+        {
+            var index = Array.IndexOf(_grid, 0);
+            var line = index / 9;
+            var column = index % 9;
+            var distinctNumbers = distinctValuesGenerator();
+            var validValues = distinctNumbers.Where(value => this.CanInsertValue(value, line, column));
 
-        //    Array.Copy(_grid, copy._grid, 81);
+            foreach (var value in validValues)
+            {
+                _grid[index] = value;
 
-        //    bool recursiveCanSolve()
-        //    {
-        //        var emptyIndexes = Enumerable.Range(0, 81).Where(i => resultGrid._grid[i] == 0);
+                if (this.IsFull() || this.RecursiveFill(distinctValuesGenerator))
+                {
+                    return true;
+                }
+            }
 
-        //        foreach (var index in emptyIndexes)
-        //        {
-        //            var distinctNumbers = Enumerable.Range(1, 9).OrderBy(x => random.Next());
-        //            var line = index / 9;
-        //            var column = index % 9;
+            _grid[index] = 0;
 
-        //            var validValues = distinctNumbers.Where(
-        //                value =>
-        //                    !resultGrid.GetLine(line).Contains(value) &&
-        //                    !resultGrid.GetColumn(column).Contains(value) &&
-        //                    !resultGrid.GetSquare(line, column).Contains(value));
+            return false;
+        }
 
-        //            foreach (var value in validValues)
-        //            {
-        //                resultGrid._grid[index] = value;
+        private bool CanSolve()
+        {
+            var copy = new SudokuGrid();
 
-        //                if (resultGrid.IsFull() || recursiveFill())
-        //                {
-        //                    return true;
-        //                }
-        //            }
+            Array.Copy(_grid, copy._grid, 81);
 
-        //            resultGrid._grid[index] = 0;
-        //            break;
-        //        }
-
-        //        return false;
-        //    }
-        //}
+            return copy.RecursiveFill(() => Enumerable.Range(1, 9));
+        }
 
         private bool CanInsertValue(int value, int line, int column)
         {
             this.CheckLineOrColumn(line);
             this.CheckLineOrColumn(column);
             this.CheckValue(value);
-
-            if (value < 1 || value > 9)
-            {
-                throw new InvalidOperationException("Grid value must be a number between 1 and 9.");
-            }
 
             return
                 !this.GetLine(line).Contains(value) &&
