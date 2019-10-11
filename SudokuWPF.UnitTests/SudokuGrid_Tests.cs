@@ -38,11 +38,24 @@ namespace SudokuWPF.UnitTests
         }
 
         [Fact]
-        public void BuildRandomFilledGrid_ShouldBeValid()
+        public void BuildRandomFilledGrid_ShouldReturnValidGrid()
         {
             var randomGrid = SudokuGrid.BuildRandomFilledGrid();
 
             randomGrid.IsValid().Should().BeTrue();
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        public void Remove_ShouldEmptyTheSpecifiedNumberOfCells(int numberToRemove)
+        {
+            var randomGrid = SudokuGrid.BuildRandomFilledGrid();
+
+            randomGrid.Remove(numberToRemove);
+
+            randomGrid.CountEmptyCells().Should().Be(numberToRemove);
         }
     }
 }

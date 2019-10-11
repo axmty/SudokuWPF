@@ -58,8 +58,9 @@ namespace SudokuWPF
         {
             var random = new Random();
             var removeCount = 0;
+            var canRemove = true;
 
-            while (removeCount < maxCellsToRemove)
+            while (canRemove && removeCount < maxCellsToRemove)
             {
                 var nonEmptyCellIndexes = _grid
                     .Where(value => value != 0)
@@ -85,8 +86,13 @@ namespace SudokuWPF
                     }
                 }
 
-                break;
+                canRemove = false;
             }
+        }
+
+        public int CountEmptyCells()
+        {
+            return _grid.Count(value => value == 0);
         }
 
         public bool CanInsertValue(int value, int line, int column)
