@@ -49,11 +49,7 @@ namespace SudokuWPF
             }
             set
             {
-                if (value < 1 || value > 9)
-                {
-                    throw new InvalidOperationException("Grid value must be a number between 1 and 9.");
-                }
-
+                this.CheckValue(value);
                 _grid[i * 9 + j] = value;
             }
         }
@@ -149,10 +145,9 @@ namespace SudokuWPF
 
         private bool CanInsertValue(int value, int line, int column)
         {
-            if (column < 0 || column > 9 || line < 0 || line > 9)
-            {
-                throw new ArgumentException("Column and line must be in range [0, 8].");
-            }
+            this.CheckLineOrColumn(line);
+            this.CheckLineOrColumn(column);
+            this.CheckValue(value);
 
             if (value < 1 || value > 9)
             {
@@ -172,10 +167,8 @@ namespace SudokuWPF
 
         private int[] GetSquare(int line, int column)
         {
-            if (column < 0 || column > 9 || line < 0 || line > 9)
-            {
-                throw new ArgumentException("Column and line must be in range [0, 8].");
-            }
+            this.CheckLineOrColumn(line);
+            this.CheckLineOrColumn(column);
 
             var result = new int[9];
             var firstSquareLine = (line / 3) * 3;
@@ -194,10 +187,7 @@ namespace SudokuWPF
 
         private int[] GetColumn(int column)
         {
-            if (column < 0 || column > 9)
-            {
-                throw new ArgumentException("Column must be in range [0, 8].", nameof(column));
-            }
+            this.CheckLineOrColumn(column);
 
             var result = new int[9];
 
@@ -211,10 +201,7 @@ namespace SudokuWPF
 
         private int[] GetLine(int line)
         {
-            if (line < 0 || line > 9)
-            {
-                throw new ArgumentException("Line must be in range [0, 8].", nameof(line));
-            }
+            this.CheckLineOrColumn(line);
 
             var result = new int[9];
 
@@ -224,6 +211,22 @@ namespace SudokuWPF
             }
 
             return result;
+        }
+
+        private void CheckLineOrColumn(int lineOrColumn)
+        {
+            if (lineOrColumn < 0 || lineOrColumn >= 9)
+            {
+                throw new ArgumentException("Lines and columns must be numbers between 0 and 8.");
+            }
+        }
+
+        private void CheckValue(int value)
+        {
+            if (value < 0 || value > 0)
+            {
+                throw new InvalidOperationException("Grid value must be a number between 0 and 9.");
+            }
         }
     }
 }
