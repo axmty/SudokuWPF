@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -90,6 +89,82 @@ namespace SudokuWPF
             }
         }
 
+        public bool CanInsertValue(int value, int line, int column)
+        {
+            this.CheckLineOrColumn(line);
+            this.CheckLineOrColumn(column);
+            this.CheckValue(value);
+
+            return
+                !this.GetLine(line).Contains(value) &&
+                !this.GetColumn(column).Contains(value) &&
+                !this.GetSquare(line, column).Contains(value);
+        }
+
+        public bool IsFull()
+        {
+            return !_grid.Contains(0);
+        }
+
+        //public bool IsValid()
+        //{
+        //    for (int i = 0; i < 9; i++)
+        //    {
+        //        if (this.IsValidLine(i))
+        //        {
+
+        //        }
+        //    }
+        //}
+
+        public int[] GetSquare(int line, int column)
+        {
+            this.CheckLineOrColumn(line);
+            this.CheckLineOrColumn(column);
+
+            var result = new int[9];
+            var firstSquareLine = (line / 3) * 3;
+            var firstSquareColumn = (column / 3) * 3;
+
+            for (int i = 0; i < 9; i++)
+            {
+                var currentLine = firstSquareLine + i / 3;
+                var currentColumn = firstSquareColumn + i % 3;
+
+                result[i] = _grid[currentLine * 9 + currentColumn];
+            }
+
+            return result;
+        }
+
+        public int[] GetColumn(int column)
+        {
+            this.CheckLineOrColumn(column);
+
+            var result = new int[9];
+
+            for (int i = 0; i < 9; i++)
+            {
+                result[i] = _grid[column + i * 9];
+            }
+
+            return result;
+        }
+
+        public int[] GetLine(int line)
+        {
+            this.CheckLineOrColumn(line);
+
+            var result = new int[9];
+
+            for (int i = 0; i < 9; i++)
+            {
+                result[i] = _grid[i + 9 * line];
+            }
+
+            return result;
+        }
+
         public override bool Equals(object obj)
         {
             if (obj == null)
@@ -177,71 +252,6 @@ namespace SudokuWPF
             recursiveSolve();
 
             return count == 1;
-        }
-
-        private bool CanInsertValue(int value, int line, int column)
-        {
-            this.CheckLineOrColumn(line);
-            this.CheckLineOrColumn(column);
-            this.CheckValue(value);
-
-            return
-                !this.GetLine(line).Contains(value) &&
-                !this.GetColumn(column).Contains(value) &&
-                !this.GetSquare(line, column).Contains(value);
-        }
-
-        private bool IsFull()
-        {
-            return !_grid.Contains(0);
-        }
-
-        private int[] GetSquare(int line, int column)
-        {
-            this.CheckLineOrColumn(line);
-            this.CheckLineOrColumn(column);
-
-            var result = new int[9];
-            var firstSquareLine = (line / 3) * 3;
-            var firstSquareColumn = (column / 3) * 3;
-
-            for (int i = 0; i < 9; i++)
-            {
-                var currentLine = firstSquareLine + i / 3;
-                var currentColumn = firstSquareColumn + i % 3;
-
-                result[i] = _grid[currentLine * 9 + currentColumn];
-            }
-
-            return result;
-        }
-
-        private int[] GetColumn(int column)
-        {
-            this.CheckLineOrColumn(column);
-
-            var result = new int[9];
-
-            for (int i = 0; i < 9; i++)
-            {
-                result[i] = _grid[column + i * 9];
-            }
-
-            return result;
-        }
-
-        private int[] GetLine(int line)
-        {
-            this.CheckLineOrColumn(line);
-
-            var result = new int[9];
-
-            for (int i = 0; i < 9; i++)
-            {
-                result[i] = _grid[i + 9 * line];
-            }
-
-            return result;
         }
 
         private void CheckLineOrColumn(int lineOrColumn)
