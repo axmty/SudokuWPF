@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 
 namespace SudokuWPF
 {
@@ -37,6 +38,9 @@ namespace SudokuWPF
                             return true;
                         }
                     }
+
+                    resultGrid._grid[index] = 0;
+                    break;
                 }
 
                 return false;
@@ -84,6 +88,33 @@ namespace SudokuWPF
         public override int GetHashCode()
         {
             return HashCode.Combine(this._grid);
+        }
+
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+
+            for (int i = 0; i < 9; i++)
+            {
+                if (i % 3 == 0)
+                {
+                    builder.AppendLine(" ");
+                }
+
+                for (int j = 0; j < 9; j++)
+                {
+                    if (j % 3 == 0)
+                    {
+                        builder.Append(" ");
+                    }
+
+                    builder.Append($"{_grid[i * 9 + j]} ");
+                }
+
+                builder.AppendLine();
+            }
+
+            return builder.ToString();
         }
 
         private bool IsFull()
