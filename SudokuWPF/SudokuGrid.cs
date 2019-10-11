@@ -15,33 +15,23 @@ namespace SudokuWPF
 
             bool recursiveFill()
             {
-                var emptyIndexes = Enumerable.Range(0, 81).Where(i => resultGrid._grid[i] == 0);
+                var index = Array.IndexOf(resultGrid._grid, 0);
+                var line = index / 9;
+                var column = index % 9;
+                var distinctNumbers = Enumerable.Range(1, 9).OrderBy(x => random.Next());
+                var validValues = distinctNumbers.Where(value => resultGrid.CanInsertValue(value, line, column));
 
-                foreach (var index in emptyIndexes)
+                foreach (var value in validValues)
                 {
-                    var distinctNumbers = Enumerable.Range(1, 9).OrderBy(x => random.Next());
-                    var line = index / 9;
-                    var column = index % 9;
+                    resultGrid._grid[index] = value;
 
-                    var validValues = distinctNumbers.Where(
-                        value =>
-                            !resultGrid.GetLine(line).Contains(value) &&
-                            !resultGrid.GetColumn(column).Contains(value) &&
-                            !resultGrid.GetSquare(line, column).Contains(value));
-
-                    foreach (var value in validValues)
+                    if (resultGrid.IsFull() || recursiveFill())
                     {
-                        resultGrid._grid[index] = value;
-
-                        if (resultGrid.IsFull() || recursiveFill())
-                        {
-                            return true;
-                        }
+                        return true;
                     }
-
-                    resultGrid._grid[index] = 0;
-                    break;
                 }
+
+                resultGrid._grid[index] = 0;
 
                 return false;
             }
@@ -117,6 +107,64 @@ namespace SudokuWPF
             return builder.ToString();
         }
 
+        //private bool CanSolve()
+        //{
+        //    var copy = new SudokuGrid();
+
+        //    Array.Copy(_grid, copy._grid, 81);
+
+        //    bool recursiveCanSolve()
+        //    {
+        //        var emptyIndexes = Enumerable.Range(0, 81).Where(i => resultGrid._grid[i] == 0);
+
+        //        foreach (var index in emptyIndexes)
+        //        {
+        //            var distinctNumbers = Enumerable.Range(1, 9).OrderBy(x => random.Next());
+        //            var line = index / 9;
+        //            var column = index % 9;
+
+        //            var validValues = distinctNumbers.Where(
+        //                value =>
+        //                    !resultGrid.GetLine(line).Contains(value) &&
+        //                    !resultGrid.GetColumn(column).Contains(value) &&
+        //                    !resultGrid.GetSquare(line, column).Contains(value));
+
+        //            foreach (var value in validValues)
+        //            {
+        //                resultGrid._grid[index] = value;
+
+        //                if (resultGrid.IsFull() || recursiveFill())
+        //                {
+        //                    return true;
+        //                }
+        //            }
+
+        //            resultGrid._grid[index] = 0;
+        //            break;
+        //        }
+
+        //        return false;
+        //    }
+        //}
+
+        private bool CanInsertValue(int value, int line, int column)
+        {
+            if (column < 0 || column > 9 || line < 0 || line > 9)
+            {
+                throw new ArgumentException("Column and line must be in range [0, 8].");
+            }
+
+            if (value < 1 || value > 9)
+            {
+                throw new InvalidOperationException("Grid value must be a number between 1 and 9.");
+            }
+
+            return
+                !this.GetLine(line).Contains(value) &&
+                !this.GetColumn(column).Contains(value) &&
+                !this.GetSquare(line, column).Contains(value);
+        }
+
         private bool IsFull()
         {
             return !_grid.Contains(0);
@@ -124,7 +172,7 @@ namespace SudokuWPF
 
         private int[] GetSquare(int line, int column)
         {
-            if (column < 0 || column > 9)
+            if (column < 0 || column > 9 || line < 0 || line > 9)
             {
                 throw new ArgumentException("Column and line must be in range [0, 8].");
             }
