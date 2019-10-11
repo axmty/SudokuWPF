@@ -1,7 +1,5 @@
-using System;
-using Xunit;
 using FluentAssertions;
-using System.Linq;
+using Xunit;
 
 namespace SudokuWPF.UnitTests
 {
@@ -37,6 +35,14 @@ namespace SudokuWPF.UnitTests
             var randomGrid = SudokuGrid.BuildRandomFilledGrid();
 
             randomGrid.IsFull().Should().BeTrue();
+        }
+
+        [Fact]
+        public void BuildRandomFilledGrid_ShouldBeValid()
+        {
+            var randomGrid = SudokuGrid.BuildRandomFilledGrid();
+
+            randomGrid.IsValid().Should().BeTrue();
         }
     }
 }

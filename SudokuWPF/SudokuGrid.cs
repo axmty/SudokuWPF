@@ -106,63 +106,27 @@ namespace SudokuWPF
             return !_grid.Contains(0);
         }
 
-        //public bool IsValid()
-        //{
-        //    for (int i = 0; i < 9; i++)
-        //    {
-        //        if (this.IsValidLine(i))
-        //        {
-
-        //        }
-        //    }
-        //}
-
-        public int[] GetSquare(int line, int column)
+        public bool IsValid()
         {
-            this.CheckLineOrColumn(line);
-            this.CheckLineOrColumn(column);
-
-            var result = new int[9];
-            var firstSquareLine = (line / 3) * 3;
-            var firstSquareColumn = (column / 3) * 3;
-
             for (int i = 0; i < 9; i++)
             {
-                var currentLine = firstSquareLine + i / 3;
-                var currentColumn = firstSquareColumn + i % 3;
+                if (!this.IsValidLine(i))
+                {
+                    return false;
+                }
 
-                result[i] = _grid[currentLine * 9 + currentColumn];
+                if (!this.IsValidColumn(i))
+                {
+                    return false;
+                }
+
+                if (!this.IsValidSquare((i / 3) * 3, (i % 3) * 3))
+                {
+                    return false;
+                }
             }
 
-            return result;
-        }
-
-        public int[] GetColumn(int column)
-        {
-            this.CheckLineOrColumn(column);
-
-            var result = new int[9];
-
-            for (int i = 0; i < 9; i++)
-            {
-                result[i] = _grid[column + i * 9];
-            }
-
-            return result;
-        }
-
-        public int[] GetLine(int line)
-        {
-            this.CheckLineOrColumn(line);
-
-            var result = new int[9];
-
-            for (int i = 0; i < 9; i++)
-            {
-                result[i] = _grid[i + 9 * line];
-            }
-
-            return result;
+            return true;
         }
 
         public override bool Equals(object obj)
@@ -254,6 +218,78 @@ namespace SudokuWPF
             return count == 1;
         }
 
+        private int[] GetSquare(int line, int column)
+        {
+            this.CheckLineOrColumn(line);
+            this.CheckLineOrColumn(column);
+
+            var result = new int[9];
+            var firstSquareLine = (line / 3) * 3;
+            var firstSquareColumn = (column / 3) * 3;
+
+            for (int i = 0; i < 9; i++)
+            {
+                var currentLine = firstSquareLine + i / 3;
+                var currentColumn = firstSquareColumn + i % 3;
+
+                result[i] = _grid[currentLine * 9 + currentColumn];
+            }
+
+            return result;
+        }
+
+        private int[] GetColumn(int column)
+        {
+            this.CheckLineOrColumn(column);
+
+            var result = new int[9];
+
+            for (int i = 0; i < 9; i++)
+            {
+                result[i] = _grid[column + i * 9];
+            }
+
+            return result;
+        }
+
+        private int[] GetLine(int line)
+        {
+            this.CheckLineOrColumn(line);
+
+            var result = new int[9];
+
+            for (int i = 0; i < 9; i++)
+            {
+                result[i] = _grid[i + 9 * line];
+            }
+
+            return result;
+        }
+
+        private bool IsValidLine(int line)
+        {
+            this.CheckLineOrColumn(line);
+
+            return this.GetLine(line).OrderBy(x => x).SequenceEqual(Enumerable.Range(1, 9));
+        }
+
+        private bool IsValidColumn(int column)
+        {
+            this.CheckLineOrColumn(column);
+
+            return this.GetLine(column).OrderBy(x => x).SequenceEqual(Enumerable.Range(1, 9));
+        }
+
+        private bool IsValidSquare(int line, int column)
+        {
+            this.CheckLineOrColumn(line);
+            this.CheckLineOrColumn(column);
+
+            return this.GetSquare(line, column)
+                .OrderBy(x => x)
+                .SequenceEqual(Enumerable.Range(1, 9));
+        }
+
         private void CheckLineOrColumn(int lineOrColumn)
         {
             if (lineOrColumn < 0 || lineOrColumn >= 9)
@@ -264,7 +300,7 @@ namespace SudokuWPF
 
         private void CheckValue(int value)
         {
-            if (value < 0 || value > 0)
+            if (value < 0 || value > 9)
             {
                 throw new InvalidOperationException("Grid value must be a number between 0 and 9.");
             }
