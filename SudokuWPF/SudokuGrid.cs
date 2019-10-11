@@ -139,29 +139,6 @@ namespace SudokuWPF
             return builder.ToString();
         }
 
-        private bool RecursiveFill(Func<IEnumerable<int>> distinctValuesGenerator)
-        {
-            var index = Array.IndexOf(_grid, 0);
-            var line = index / 9;
-            var column = index % 9;
-            var distinctNumbers = distinctValuesGenerator();
-            var validValues = distinctNumbers.Where(value => this.CanInsertValue(value, line, column));
-
-            foreach (var value in validValues)
-            {
-                _grid[index] = value;
-
-                if (this.IsFull() || this.RecursiveFill(distinctValuesGenerator))
-                {
-                    return true;
-                }
-            }
-
-            _grid[index] = 0;
-
-            return false;
-        }
-
         private bool HasUniqueSolution()
         {
             var copy = new SudokuGrid();
