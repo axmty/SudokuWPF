@@ -9,16 +9,6 @@ namespace SudokuWPF
     {
         private readonly int[] _grid = new int[81];
 
-        public static SudokuGrid BuildRandomFilledGrid()
-        {
-            var resultGrid = new SudokuGrid();
-            var random = new Random();
-
-            resultGrid.RecursiveFill(() => Enumerable.Range(1, 9).OrderBy(x => random.Next()));
-
-            return resultGrid;
-        }
-
         public int this[int i, int j]
         {
             get
@@ -29,6 +19,74 @@ namespace SudokuWPF
             {
                 this.CheckValue(value);
                 _grid[i * 9 + j] = value;
+            }
+        }
+
+        public static SudokuGrid BuildRandomFilledGrid()
+        {
+            var resultGrid = new SudokuGrid();
+            var random = new Random();
+
+            bool recursiveFill()
+            {
+                var index = Array.IndexOf(resultGrid._grid, 0);
+                var line = index / 9;
+                var column = index % 9;
+                var distinctNumbers = Enumerable.Range(1, 9).OrderBy(x => random.Next());
+                var validValues = distinctNumbers.Where(value => resultGrid.CanInsertValue(value, line, column));
+
+                foreach (var value in validValues)
+                {
+                    resultGrid._grid[index] = value;
+
+                    if (resultGrid.IsFull() || recursiveFill())
+                    {
+                        return true;
+                    }
+                }
+
+                resultGrid._grid[index] = 0;
+
+                return false;
+            }
+
+            recursiveFill();
+
+            return resultGrid;
+        }
+
+        public void Remove(int maxCellsToRemove)
+        {
+            var random = new Random();
+            var removeCount = 0;
+
+            while (removeCount < maxCellsToRemove)
+            {
+                var nonEmptyCellIndexes = _grid
+                    .Where(value => value != 0)
+                    .Select((_, index) => index)
+                    .OrderBy(x => random.Next());
+
+                foreach (var index in nonEmptyCellIndexes)
+                {
+                    var backupValue = _grid[index];
+                    var copy = new SudokuGrid();
+
+                    _grid[index] = 0;
+                    Array.Copy(_grid, copy._grid, 81);
+
+                    if (!copy.HasUniqueSolution())
+                    {
+                        _grid[index] = backupValue;
+                    }
+                    else
+                    {
+                        removeCount++;
+                        break;
+                    }
+                }
+
+                break;
             }
         }
 
@@ -104,13 +162,44 @@ namespace SudokuWPF
             return false;
         }
 
-        private bool CanSolve()
+        private bool HasUniqueSolution()
         {
             var copy = new SudokuGrid();
+            var count = 0;
 
             Array.Copy(_grid, copy._grid, 81);
 
-            return copy.RecursiveFill(() => Enumerable.Range(1, 9));
+            bool recursiveSolve()
+            {
+                var index = Array.IndexOf(_grid, 0);
+                var line = index / 9;
+                var column = index % 9;
+                var distinctNumbers = Enumerable.Range(1, 9);
+                var validValues = distinctNumbers.Where(value => copy.CanInsertValue(value, line, column));
+
+                foreach (var value in validValues)
+                {
+                    copy._grid[index] = value;
+
+                    if (copy.IsFull())
+                    {
+                        count++;
+                        break;
+                    }
+                    else if (recursiveSolve())
+                    {
+                        return true;
+                    }
+                }
+
+                _grid[index] = 0;
+
+                return false;
+            }
+
+            recursiveSolve();
+
+            return count == 1;
         }
 
         private bool CanInsertValue(int value, int line, int column)
