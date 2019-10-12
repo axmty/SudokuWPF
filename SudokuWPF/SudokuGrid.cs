@@ -58,35 +58,34 @@ namespace SudokuWPF
         {
             var random = new Random();
             var removeCount = 0;
-            var canRemove = true;
+            var continueRemove = true;
 
-            while (canRemove && removeCount < maxCellsToRemove)
+            while (continueRemove && removeCount < maxCellsToRemove)
             {
                 var nonEmptyCellIndexes = _grid
-                    .Where(value => value != 0)
-                    .Select((_, index) => index)
+                    .Select((value, index) => (value, index))
+                    .Where(x => x.value != 0)
                     .OrderBy(x => random.Next());
 
-                foreach (var index in nonEmptyCellIndexes)
+                continueRemove = false;
+
+                foreach (var index in nonEmptyCellIndexes.Select(x => x.index))
                 {
                     var backupValue = _grid[index];
-                    var copy = new SudokuGrid();
 
                     _grid[index] = 0;
-                    Array.Copy(_grid, copy._grid, 81);
 
-                    if (!copy.HasUniqueSolution())
+                    if (!this.HasUniqueSolution())
                     {
                         _grid[index] = backupValue;
                     }
                     else
                     {
                         removeCount++;
+                        continueRemove = true;
                         break;
                     }
                 }
-
-                canRemove = false;
             }
         }
 
@@ -193,7 +192,7 @@ namespace SudokuWPF
 
             bool recursiveSolve()
             {
-                var index = Array.IndexOf(_grid, 0);
+                var index = Array.IndexOf(copy._grid, 0);
                 var line = index / 9;
                 var column = index % 9;
                 var distinctNumbers = Enumerable.Range(1, 9);
@@ -214,7 +213,7 @@ namespace SudokuWPF
                     }
                 }
 
-                _grid[index] = 0;
+                copy._grid[index] = 0;
 
                 return false;
             }
