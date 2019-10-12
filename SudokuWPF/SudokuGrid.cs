@@ -282,7 +282,7 @@ namespace SudokuWPF
         {
             this.CheckLineOrColumn(column);
 
-            return this.GetLine(column).OrderBy(x => x).SequenceEqual(Enumerable.Range(1, 9));
+            return this.GetColumn(column).OrderBy(x => x).SequenceEqual(Enumerable.Range(1, 9));
         }
 
         private bool IsValidSquare(int line, int column)
